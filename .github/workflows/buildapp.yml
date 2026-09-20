@@ -78,7 +78,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          brew install ldid dpkg make wget unzip jq pipx
+          brew install ldid dpkg make wget unzip jq pipx meson ninja
 
       - name: Set PATH
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
@@ -162,6 +162,19 @@ jobs:
 
         env:
           YOUTUBE_URL: ${{ env.URL_YT }}
+
+      - name: Build YTUHD codec libraries
+        if: ${{ inputs.ytuhd }}
+        run: |
+          cd main/Tweaks/YTUHD
+          make libvpx
+          make dav1d
+          test -f vendor/libvpx_ios/libvpx.a
+          test -f vendor/dav1d_ios/libdav1d.a
+          test -f vendor/libvpx/vpx/vpx_decoder.h
+          test -f vendor/dav1d_ios/install/include/dav1d/dav1d.h
+        env:
+          THEOS: ${{ github.workspace }}/theos
 
       - name: Fix compiling & Build Package
         id: build_package
